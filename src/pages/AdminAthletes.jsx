@@ -72,17 +72,17 @@ const AdminAthletes = () => {
       const data = await response.json();
       console.log('✅ Hydration response:', data);
       
-      if (data.success && data.data) {
+      if (data.success && data.athletes) {
         // STORE FULL OBJECTS IN localStorage
-        localStorage.setItem('athletesData', JSON.stringify(data.data));
+        localStorage.setItem('athletesData', JSON.stringify(data.athletes));
         localStorage.setItem('athletesCount', data.count.toString());
         localStorage.setItem('athletesLastUpdated', new Date().toISOString());
         localStorage.setItem('athletesStatus', 'loaded');
         
-        console.log('💾 Stored athletes in localStorage:', data.data.length, 'athletes');
+        console.log('💾 Stored athletes in localStorage:', data.athletes.length, 'athletes');
         
-        setAthletes(data.data);
-        toast.success(`Loaded ${data.data.length} athletes from GoFast Backend V2`);
+        setAthletes(data.athletes);
+        toast.success(`Loaded ${data.athletes.length} athletes from GoFast Backend V2`);
       } else {
         throw new Error(data.message || 'Invalid response format');
       }
@@ -414,16 +414,16 @@ GoFast Team`
                             <div className="text-sm text-gray-500 space-y-1">
                               <div className="flex items-center gap-4">
                                 <span className="flex items-center gap-1">
-                                  <Calendar className="h-3 w-3" />
-                                  Created: {formatDate(athlete.createdAt)}
+                                  <Shield className="h-3 w-3" />
+                                  <strong>Athlete ID:</strong> {athlete.id || 'N/A'}
                                 </span>
                                 <span className="flex items-center gap-1">
                                   <Key className="h-3 w-3" />
-                                  Firebase: {athlete.firebaseId ? athlete.firebaseId.substring(0, 8) + '...' : 'N/A'}
+                                  <strong>Firebase:</strong> {athlete.firebaseId ? athlete.firebaseId.substring(0, 12) + '...' : 'N/A'}
                                 </span>
                                 <span className="flex items-center gap-1">
                                   <Calendar className="h-3 w-3" />
-                                  {daysSinceCreation === 'Unknown' ? 'Created: Unknown' : `Created ${daysSinceCreation} days ago`}
+                                  <strong>Created:</strong> {formatDate(athlete.createdAt)}
                                 </span>
                               </div>
                               <div className="flex items-center gap-2">
@@ -436,6 +436,11 @@ GoFast Team`
                                 {athlete.gofastHandle && (
                                   <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                                     @{athlete.gofastHandle}
+                                  </span>
+                                )}
+                                {athlete.primarySport && (
+                                  <span className="px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                    {athlete.primarySport}
                                   </span>
                                 )}
                               </div>
