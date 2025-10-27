@@ -3,10 +3,8 @@ import { Users, RefreshCw, Trash2, Edit, Mail, Calendar, Shield, MessageSquare, 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card.jsx';
 import { Button } from '../components/ui/button.jsx';
 import toast, { Toaster } from 'react-hot-toast';
-import { useAuth } from '../context/AuthContext';
 
 const AdminAthletes = () => {
-  const { isAdmin } = useAuth();
   const [athletes, setAthletes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedAthletes, setSelectedAthletes] = useState(new Set());
