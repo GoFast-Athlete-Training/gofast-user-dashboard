@@ -56,24 +56,38 @@ const AdminAthletes = () => {
   const loadAthletesFromAPI = async () => {
     setLoading(true);
     
-    console.log('🔄 Loading athletes from API...');
+    console.log('🔄 Loading athletes from GoFast Backend V2...');
     
     try {
-      // TODO: Replace with actual API call
-      // const response = await fetch('http://localhost:3001/api/athletes', {
-      //   method: 'GET',
-      //   headers: { 
-      //     'Content-Type': 'application/json'
-      //   }
-      // });
+      // Call our working hydration endpoint
+      const response = await fetch('https://gofastbackendv2-fall2025.onrender.com/api/athlete/hydrate', {
+        method: 'GET',
+        headers: { 
+          'Content-Type': 'application/json'
+        }
+      });
 
-      // For now, use mock data
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API delay
-      setAthletes(mockAthletes);
-      toast.success(`Loaded ${mockAthletes.length} athletes from server`);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log('✅ Hydration response:', data);
+      
+      if (data.success && data.data) {
+        setAthletes(data.data);
+        toast.success(`Loaded ${data.data.length} athletes from GoFast Backend V2`);
+      } else {
+        throw new Error(data.message || 'Invalid response format');
+      }
     } catch (err) {
       console.error('❌ Error loading athletes:', err);
       toast.error('Failed to load athletes: ' + err.message);
+      
+      // Fallback to mock data for development
+      console.log('🔄 Falling back to mock data...');
+      setAthletes(mockAthletes);
+      toast.info('Using mock data - backend connection failed');
     } finally {
       setLoading(false);
     }
