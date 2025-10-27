@@ -28,18 +28,18 @@ const AdminHome = () => {
         const data = await response.json();
         console.log('✅ GLOBAL HYDRATION: Response received:', data);
         
-        if (data.success && data.data) {
+        if (data.success && data.athletes) {
           // STORE FULL OBJECTS IN localStorage FOR ENTIRE DASHBOARD
-          localStorage.setItem('athletesData', JSON.stringify(data.data));
+          localStorage.setItem('athletesData', JSON.stringify(data.athletes));
           localStorage.setItem('athletesCount', data.count.toString());
           localStorage.setItem('athletesLastUpdated', new Date().toISOString());
           localStorage.setItem('athletesStatus', 'loaded');
           localStorage.setItem('dashboardHydrated', 'true');
           
-          console.log('💾 GLOBAL HYDRATION: Stored', data.data.length, 'athletes in localStorage');
+          console.log('💾 GLOBAL HYDRATION: Stored', data.athletes.length, 'athletes in localStorage');
           console.log('🎯 GLOBAL HYDRATION: Dashboard ready for all components!');
           
-          toast.success(`Dashboard hydrated with ${data.data.length} athletes!`);
+          toast.success(`Dashboard hydrated with ${data.athletes.length} athletes!`);
         } else {
           throw new Error(data.message || 'Invalid response format');
         }
