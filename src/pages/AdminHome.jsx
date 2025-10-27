@@ -1,0 +1,118 @@
+import React, { useState, useEffect } from 'react';
+import { Shield, LogIn } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card.jsx';
+import { Button } from '../components/ui/button.jsx';
+import { Input } from '../components/ui/input.jsx';
+import { useNavigate } from 'react-router-dom';
+import toast, { Toaster } from 'react-hot-toast';
+import { useAuth } from '../context/AuthContext.jsx';
+
+const AdminHome = () => {
+  const navigate = useNavigate();
+  const { login } = useAuth();
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const result = await login(username, password);
+      
+      if (result.success) {
+        toast.success('Welcome to GoFast Admin!');
+        navigate('/admin');
+      } else {
+        toast.error(result.error || 'Invalid credentials');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      toast.error('Failed to connect to server');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Check if already logged in and redirect
+  useEffect(() => {
+    const loggedIn = localStorage.getItem('adminLoggedIn');
+    if (loggedIn) {
+      navigate('/admin');
+    }
+  }, [navigate]);
+
+  const handleForceLogout = () => {
+    localStorage.removeItem('adminLoggedIn');
+    window.location.reload();
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+      <Toaster position="top-right" />
+      
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-orange-100">
+            <Shield className="h-8 w-8 text-orange-600" />
+          </div>
+          <CardTitle className="text-2xl">Welcome to GoFast Admin Portal</CardTitle>
+          <CardDescription className="text-base">
+            Manage athletes, track progress, and oversee the GoFast community.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div className="space-y-2">
+              <label htmlFor="username" className="text-sm font-medium">
+                Username
+              </label>
+              <Input
+                id="username"
+                type="text"
+                placeholder="Enter username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="password" className="text-sm font-medium">
+                Password
+              </label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="Enter password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+            <Button 
+              type="submit" 
+              className="w-full" 
+              disabled={loading}
+            >
+              <LogIn className="h-4 w-4 mr-2" />
+              {loading ? 'Signing in...' : 'Sign In'}
+            </Button>
+          </form>
+          
+          {/* Force Logout Button */}
+          <div className="mt-4 pt-4 border-t border-gray-200">
+            <button 
+              onClick={handleForceLogout}
+              className="w-full text-sm text-gray-500 hover:text-gray-700 underline"
+            >
+              Clear login state
+            </button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+export default AdminHome;
