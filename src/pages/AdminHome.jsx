@@ -1,38 +1,16 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card.jsx';
 import { Button } from '../components/ui/button.jsx';
 import { useNavigate } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
-import { useAuth } from '../context/AuthContext.jsx';
 
 const AdminHome = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
 
-  const handleEnterAdmin = async () => {
-    try {
-      // Auto-login without credentials
-      const result = await login('admin', 'gofast2025');
-      
-      if (result.success) {
-        toast.success('Welcome to GoFast Admin!');
-        navigate('/admin');
-      } else {
-        toast.error('Failed to enter admin');
-      }
-    } catch (error) {
-      console.error('Login error:', error);
-      toast.error('Failed to enter admin');
-    }
+  const handleEnterAdmin = () => {
+    toast.success('Welcome to GoFast Admin!');
+    navigate('/admin');
   };
-
-  // Check if already logged in and redirect
-  useEffect(() => {
-    const loggedIn = localStorage.getItem('adminLoggedIn');
-    if (loggedIn) {
-      navigate('/admin');
-    }
-  }, [navigate]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
