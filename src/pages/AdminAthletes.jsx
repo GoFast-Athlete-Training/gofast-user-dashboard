@@ -58,7 +58,7 @@ const AdminAthletes = () => {
     
     try {
       // Call our working hydration endpoint
-      const response = await fetch('https://gofastbackendv2-fall2025.onrender.com/api/athlete/hydrate', {
+      const response = await fetch('https://gofastbackendv2-fall2025.onrender.com/api/athlete/admin/hydrate', {
         method: 'GET',
         headers: { 
           'Content-Type': 'application/json'
