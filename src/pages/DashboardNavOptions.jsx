@@ -13,14 +13,6 @@ const DashboardNavOptions = () => {
 
   const navOptions = [
     {
-      title: 'Athlete Hydration',
-      description: 'Load real athlete data from database for testing and development',
-      icon: <Database className="h-8 w-8" />,
-      path: '/athlete-hydration',
-      color: 'bg-orange-100 text-orange-600',
-      priority: 'high'
-    },
-    {
       title: 'Athlete Management',
       description: 'View and manage all GoFast athletes, their profiles, and account status',
       icon: <Users className="h-8 w-8" />,
@@ -29,36 +21,12 @@ const DashboardNavOptions = () => {
       priority: 'high'
     },
     {
-      title: 'Quick Actions',
-      description: 'Common admin tasks: delete test data, reset database, bulk operations',
-      icon: <Zap className="h-8 w-8" />,
-      path: '/quick-actions',
-      color: 'bg-yellow-100 text-yellow-600',
-      priority: 'high'
-    },
-    {
-      title: 'Analytics Dashboard',
-      description: 'View platform statistics, user engagement, and growth metrics',
-      icon: <BarChart3 className="h-8 w-8" />,
-      path: '/analytics-admin',
-      color: 'bg-purple-100 text-purple-600',
-      priority: 'low'
-    },
-    {
-      title: 'Message Center',
-      description: 'Send messages to athletes, manage communications, and notifications',
-      icon: <MessageSquare className="h-8 w-8" />,
-      path: '/message-center',
-      color: 'bg-green-100 text-green-600',
-      priority: 'low'
-    },
-    {
-      title: 'System Settings',
-      description: 'Configure platform settings, manage admin accounts, and system preferences',
+      title: 'Back to Home',
+      description: 'Return to the main admin home page',
       icon: <Settings className="h-8 w-8" />,
-      path: '/settings-admin',
+      path: '/',
       color: 'bg-gray-100 text-gray-600',
-      priority: 'low'
+      priority: 'high'
     }
   ];
 
