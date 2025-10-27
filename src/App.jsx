@@ -12,7 +12,6 @@ function App() {
         <Route path="/" element={<AdminHome />} />
         <Route path="/admin" element={<DashboardNavOptions />} />
         <Route path="/athlete-admin" element={<AdminAthletes />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   );
