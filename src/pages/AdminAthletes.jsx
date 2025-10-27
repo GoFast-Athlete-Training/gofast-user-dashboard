@@ -73,6 +73,14 @@ const AdminAthletes = () => {
       console.log('✅ Hydration response:', data);
       
       if (data.success && data.data) {
+        // STORE FULL OBJECTS IN localStorage
+        localStorage.setItem('athletesData', JSON.stringify(data.data));
+        localStorage.setItem('athletesCount', data.count.toString());
+        localStorage.setItem('athletesLastUpdated', new Date().toISOString());
+        localStorage.setItem('athletesStatus', 'loaded');
+        
+        console.log('💾 Stored athletes in localStorage:', data.data.length, 'athletes');
+        
         setAthletes(data.data);
         toast.success(`Loaded ${data.data.length} athletes from GoFast Backend V2`);
       } else {
@@ -257,7 +265,34 @@ GoFast Team`
   };
 
   useEffect(() => {
-    loadAthletesFromAPI();
+    // First, try to load from localStorage
+    const storedAthletes = localStorage.getItem('athletesData');
+    const lastUpdated = localStorage.getItem('athletesLastUpdated');
+    
+    if (storedAthletes) {
+      try {
+        const athletes = JSON.parse(storedAthletes);
+        setAthletes(athletes);
+        console.log('📦 Loaded athletes from localStorage:', athletes.length, 'athletes');
+        
+        // Check if data is stale (older than 5 minutes)
+        const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+        const lastUpdate = new Date(lastUpdated);
+        
+        if (lastUpdate < fiveMinutesAgo) {
+          console.log('🔄 Data is stale, refreshing from API...');
+          loadAthletesFromAPI();
+        } else {
+          console.log('✅ Using fresh localStorage data');
+        }
+      } catch (error) {
+        console.error('❌ Error parsing localStorage data:', error);
+        loadAthletesFromAPI();
+      }
+    } else {
+      console.log('📡 No localStorage data, loading from API...');
+      loadAthletesFromAPI();
+    }
   }, []);
 
   return (
