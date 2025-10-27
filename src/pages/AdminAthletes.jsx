@@ -265,32 +265,22 @@ GoFast Team`
   };
 
   useEffect(() => {
-    // First, try to load from localStorage
+    // Use globally hydrated data from AdminHome
     const storedAthletes = localStorage.getItem('athletesData');
-    const lastUpdated = localStorage.getItem('athletesLastUpdated');
+    const dashboardHydrated = localStorage.getItem('dashboardHydrated');
     
-    if (storedAthletes) {
+    if (storedAthletes && dashboardHydrated === 'true') {
       try {
         const athletes = JSON.parse(storedAthletes);
         setAthletes(athletes);
-        console.log('📦 Loaded athletes from localStorage:', athletes.length, 'athletes');
-        
-        // Check if data is stale (older than 5 minutes)
-        const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
-        const lastUpdate = new Date(lastUpdated);
-        
-        if (lastUpdate < fiveMinutesAgo) {
-          console.log('🔄 Data is stale, refreshing from API...');
-          loadAthletesFromAPI();
-        } else {
-          console.log('✅ Using fresh localStorage data');
-        }
+        console.log('📦 AdminAthletes: Using globally hydrated data:', athletes.length, 'athletes');
+        toast.success(`Loaded ${athletes.length} athletes from global cache`);
       } catch (error) {
-        console.error('❌ Error parsing localStorage data:', error);
-        loadAthletesFromAPI();
+        console.error('❌ AdminAthletes: Error parsing localStorage data:', error);
+        toast.error('Failed to load cached athlete data');
       }
     } else {
-      console.log('📡 No localStorage data, loading from API...');
+      console.log('📡 AdminAthletes: No global data, falling back to API...');
       loadAthletesFromAPI();
     }
   }, []);
