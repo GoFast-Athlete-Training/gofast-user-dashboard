@@ -3,14 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card.jsx';
 import { Button } from '../components/ui/button.jsx';
 import { Users, Activity, BarChart3, MessageSquare, Settings, LogOut } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
 
 const AdminDashboardChoices = () => {
   const navigate = useNavigate();
-  const { logout } = useAuth();
 
   const handleLogout = () => {
-    logout();
     navigate('/');
   };
 
