@@ -380,8 +380,8 @@ const AdminAthletes = () => {
                     <div className="text-xs text-gray-600">Total Athletes</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-green-600">{athletes.filter(a => a.status === 'active').length}</div>
-                    <div className="text-xs text-gray-600">Active Users</div>
+                    <div className="text-2xl font-bold text-green-600">{athletes.filter(a => a.firstName && a.lastName).length}</div>
+                    <div className="text-xs text-gray-600">Complete Profiles</div>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold text-purple-600">{athletes.filter(a => a.primarySport).length}</div>
