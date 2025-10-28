@@ -188,7 +188,7 @@ GoFast Team`
       setSelectedAthletes(new Set());
       setSelectAll(false);
     } else {
-      const allAthleteIds = athletes.map(athlete => athlete.id);
+      const allAthleteIds = athletes.map(athlete => athlete.athleteId || athlete.id);
       setSelectedAthletes(new Set(allAthleteIds));
       setSelectAll(true);
     }
@@ -379,7 +379,8 @@ GoFast Team`
                   const athleteStatus = getAthleteStatus(athlete);
                   const profileCompleteness = getProfileCompleteness(athlete);
                   const daysSinceCreation = getDaysSinceCreation(athlete.createdAt);
-                  const isSelected = selectedAthletes.has(athlete.id);
+                  const athleteId = athlete.athleteId || athlete.id;
+                  const isSelected = selectedAthletes.has(athleteId);
                   
                   return (
                     <div key={athlete.id} className={`flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 ${
@@ -389,7 +390,7 @@ GoFast Team`
                         <div className="flex items-center gap-3">
                           {/* Checkbox */}
                           <button
-                            onClick={() => handleSelectAthlete(athlete.id)}
+                            onClick={() => handleSelectAthlete(athleteId)}
                             className="flex items-center gap-2 hover:bg-gray-100 p-1 rounded"
                             title="Select for deletion"
                           >
@@ -415,7 +416,7 @@ GoFast Team`
                               <div className="flex items-center gap-4">
                                 <span className="flex items-center gap-1">
                                   <Shield className="h-3 w-3" />
-                                  <strong>Athlete ID:</strong> {athlete.id || 'N/A'}
+                                  <strong>Athlete ID:</strong> {athlete.athleteId || athlete.id || 'N/A'}
                                 </span>
                                 <span className="flex items-center gap-1">
                                   <Key className="h-3 w-3" />
