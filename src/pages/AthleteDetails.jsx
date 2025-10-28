@@ -225,12 +225,13 @@ const AthleteDetails = () => {
         </div>
 
         {/* Detailed Information */}
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2 space-y-6">
+          {/* Basic Information */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Edit className="h-5 w-5" />
-                Detailed Information
+                <Shield className="h-5 w-5" />
+                Basic Information
               </CardTitle>
               <CardDescription>
                 Profile completeness: <span className={`px-2 py-1 rounded-full text-xs font-medium ${profileCompleteness.color}`}>
@@ -239,171 +240,296 @@ const AthleteDetails = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Personal Information */}
-                <div className="space-y-4">
-                  <h3 className="font-semibold text-lg">Personal Information</h3>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
-                    {editing ? (
-                      <input
-                        type="text"
-                        value={editData.firstName || ''}
-                        onChange={(e) => setEditData({...editData, firstName: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-                      />
-                    ) : (
-                      <p className="text-gray-900">{athlete.firstName || 'Not set'}</p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
-                    {editing ? (
-                      <input
-                        type="text"
-                        value={editData.lastName || ''}
-                        onChange={(e) => setEditData({...editData, lastName: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-                      />
-                    ) : (
-                      <p className="text-gray-900">{athlete.lastName || 'Not set'}</p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">GoFast Handle</label>
-                    {editing ? (
-                      <input
-                        type="text"
-                        value={editData.gofastHandle || ''}
-                        onChange={(e) => setEditData({...editData, gofastHandle: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-                        placeholder="@username"
-                      />
-                    ) : (
-                      <p className="text-gray-900">{athlete.gofastHandle ? `@${athlete.gofastHandle}` : 'Not set'}</p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Birthday</label>
-                    {editing ? (
-                      <input
-                        type="date"
-                        value={editData.birthday || ''}
-                        onChange={(e) => setEditData({...editData, birthday: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-                      />
-                    ) : (
-                      <p className="text-gray-900">{athlete.birthday || 'Not set'}</p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Gender</label>
-                    {editing ? (
-                      <select
-                        value={editData.gender || ''}
-                        onChange={(e) => setEditData({...editData, gender: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-                      >
-                        <option value="">Select gender</option>
-                        <option value="male">Male</option>
-                        <option value="female">Female</option>
-                        <option value="other">Other</option>
-                        <option value="prefer-not-to-say">Prefer not to say</option>
-                      </select>
-                    ) : (
-                      <p className="text-gray-900">{athlete.gender || 'Not set'}</p>
-                    )}
-                  </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Athlete ID</label>
+                  <p className="text-gray-900 font-mono text-sm">{athlete.athleteId || athlete.id}</p>
                 </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Firebase ID</label>
+                  <p className="text-gray-900 font-mono text-sm">{athlete.firebaseId}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                  <p className="text-gray-900">{athlete.email}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    athlete.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                  }`}>
+                    {athlete.status || 'active'}
+                  </span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-                {/* Location & Sport */}
-                <div className="space-y-4">
-                  <h3 className="font-semibold text-lg">Location & Sport</h3>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
-                    {editing ? (
-                      <input
-                        type="text"
-                        value={editData.city || ''}
-                        onChange={(e) => setEditData({...editData, city: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-                      />
-                    ) : (
-                      <p className="text-gray-900">{athlete.city || 'Not set'}</p>
-                    )}
-                  </div>
+          {/* Personal Details */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <User className="h-5 w-5" />
+                Personal Details
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                  {editing ? (
+                    <input
+                      type="text"
+                      value={editData.firstName || ''}
+                      onChange={(e) => setEditData({...editData, firstName: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    />
+                  ) : (
+                    <p className="text-gray-900">{athlete.firstName || 'Not set'}</p>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                  {editing ? (
+                    <input
+                      type="text"
+                      value={editData.lastName || ''}
+                      onChange={(e) => setEditData({...editData, lastName: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    />
+                  ) : (
+                    <p className="text-gray-900">{athlete.lastName || 'Not set'}</p>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">GoFast Handle</label>
+                  {editing ? (
+                    <input
+                      type="text"
+                      value={editData.gofastHandle || ''}
+                      onChange={(e) => setEditData({...editData, gofastHandle: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      placeholder="@username"
+                    />
+                  ) : (
+                    <p className="text-gray-900">{athlete.gofastHandle ? `@${athlete.gofastHandle}` : 'Not set'}</p>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Birthday</label>
+                  {editing ? (
+                    <input
+                      type="date"
+                      value={editData.birthday || ''}
+                      onChange={(e) => setEditData({...editData, birthday: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    />
+                  ) : (
+                    <p className="text-gray-900">{athlete.birthday || 'Not set'}</p>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+                  {editing ? (
+                    <select
+                      value={editData.gender || ''}
+                      onChange={(e) => setEditData({...editData, gender: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    >
+                      <option value="">Select gender</option>
+                      <option value="male">Male</option>
+                      <option value="female">Female</option>
+                      <option value="other">Other</option>
+                      <option value="prefer-not-to-say">Prefer not to say</option>
+                    </select>
+                  ) : (
+                    <p className="text-gray-900">{athlete.gender || 'Not set'}</p>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Photo URL</label>
+                  <p className="text-gray-900">{athlete.photoURL || 'Not set'}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">State</label>
-                    {editing ? (
-                      <input
-                        type="text"
-                        value={editData.state || ''}
-                        onChange={(e) => setEditData({...editData, state: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-                      />
-                    ) : (
-                      <p className="text-gray-900">{athlete.state || 'Not set'}</p>
-                    )}
-                  </div>
+          {/* Location & Sport */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MapPin className="h-5 w-5" />
+                Location & Sport
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
+                  {editing ? (
+                    <input
+                      type="text"
+                      value={editData.city || ''}
+                      onChange={(e) => setEditData({...editData, city: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    />
+                  ) : (
+                    <p className="text-gray-900">{athlete.city || 'Not set'}</p>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">State</label>
+                  {editing ? (
+                    <input
+                      type="text"
+                      value={editData.state || ''}
+                      onChange={(e) => setEditData({...editData, state: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    />
+                  ) : (
+                    <p className="text-gray-900">{athlete.state || 'Not set'}</p>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Primary Sport</label>
+                  {editing ? (
+                    <select
+                      value={editData.primarySport || ''}
+                      onChange={(e) => setEditData({...editData, primarySport: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    >
+                      <option value="">Select sport</option>
+                      <option value="running">Running</option>
+                      <option value="cycling">Cycling</option>
+                      <option value="swimming">Swimming</option>
+                      <option value="triathlon">Triathlon</option>
+                      <option value="weightlifting">Weightlifting</option>
+                      <option value="yoga">Yoga</option>
+                      <option value="other">Other</option>
+                    </select>
+                  ) : (
+                    <p className="text-gray-900">{athlete.primarySport || 'Not set'}</p>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Instagram</label>
+                  {editing ? (
+                    <input
+                      type="text"
+                      value={editData.instagram || ''}
+                      onChange={(e) => setEditData({...editData, instagram: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      placeholder="@username"
+                    />
+                  ) : (
+                    <p className="text-gray-900">{athlete.instagram || 'Not set'}</p>
+                  )}
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Bio</label>
+                  {editing ? (
+                    <textarea
+                      value={editData.bio || ''}
+                      onChange={(e) => setEditData({...editData, bio: e.target.value})}
+                      rows={3}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      placeholder="Tell us about yourself..."
+                    />
+                  ) : (
+                    <p className="text-gray-900">{athlete.bio || 'No bio provided'}</p>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Primary Sport</label>
-                    {editing ? (
-                      <select
-                        value={editData.primarySport || ''}
-                        onChange={(e) => setEditData({...editData, primarySport: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-                      >
-                        <option value="">Select sport</option>
-                        <option value="running">Running</option>
-                        <option value="cycling">Cycling</option>
-                        <option value="swimming">Swimming</option>
-                        <option value="triathlon">Triathlon</option>
-                        <option value="weightlifting">Weightlifting</option>
-                        <option value="yoga">Yoga</option>
-                        <option value="other">Other</option>
-                      </select>
-                    ) : (
-                      <p className="text-gray-900">{athlete.primarySport || 'Not set'}</p>
-                    )}
-                  </div>
+          {/* Garmin Integration */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Activity className="h-5 w-5" />
+                Garmin Integration
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Connected</label>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    athlete.garmin?.connected ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                  }`}>
+                    {athlete.garmin?.connected ? 'Yes' : 'No'}
+                  </span>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Garmin User ID</label>
+                  <p className="text-gray-900 font-mono text-sm">{athlete.garmin?.userId || 'Not connected'}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Connected At</label>
+                  <p className="text-gray-900">{athlete.garmin?.connectedAt ? formatDate(athlete.garmin.connectedAt) : 'Not connected'}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Last Sync At</label>
+                  <p className="text-gray-900">{athlete.garmin?.lastSyncAt ? formatDate(athlete.garmin.lastSyncAt) : 'Never synced'}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Scope</label>
+                  <p className="text-gray-900">{athlete.garmin?.scope || 'Not set'}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Has Tokens</label>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    athlete.garmin?.hasTokens ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                  }`}>
+                    {athlete.garmin?.hasTokens ? 'Yes' : 'No'}
+                  </span>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Token Status</label>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    athlete.garmin?.tokenStatus === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                  }`}>
+                    {athlete.garmin?.tokenStatus || 'none'}
+                  </span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Bio</label>
-                    {editing ? (
-                      <textarea
-                        value={editData.bio || ''}
-                        onChange={(e) => setEditData({...editData, bio: e.target.value})}
-                        rows={3}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-                        placeholder="Tell us about yourself..."
-                      />
-                    ) : (
-                      <p className="text-gray-900">{athlete.bio || 'No bio provided'}</p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Instagram</label>
-                    {editing ? (
-                      <input
-                        type="text"
-                        value={editData.instagram || ''}
-                        onChange={(e) => setEditData({...editData, instagram: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-                        placeholder="@username"
-                      />
-                    ) : (
-                      <p className="text-gray-900">{athlete.instagram || 'Not set'}</p>
-                    )}
-                  </div>
+          {/* Timestamps & Computed Fields */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Calendar className="h-5 w-5" />
+                Timestamps & Computed Fields
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Created At</label>
+                  <p className="text-gray-900">{formatDate(athlete.createdAt)}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Updated At</label>
+                  <p className="text-gray-900">{formatDate(athlete.updatedAt)}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                  <p className="text-gray-900">{athlete.fullName || 'No Name Set'}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Profile Complete</label>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    athlete.profileComplete ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                  }`}>
+                    {athlete.profileComplete ? 'Yes' : 'No'}
+                  </span>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Days Since Creation</label>
+                  <p className="text-gray-900">{athlete.daysSinceCreation || 0} days</p>
                 </div>
               </div>
             </CardContent>
