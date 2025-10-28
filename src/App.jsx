@@ -5,6 +5,7 @@ import AdminHome from './pages/AdminHome';
 import DashboardNavOptions from './pages/DashboardNavOptions';
 import AdminAthletes from './pages/AdminAthletes';
 import AthleteDetails from './pages/AthleteDetails';
+import GarminConnectSuccess from './pages/GarminConnectSuccess';
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="/admin" element={<DashboardNavOptions />} />
         <Route path="/athlete-admin" element={<AdminAthletes />} />
         <Route path="/athlete/:athleteId" element={<AthleteDetails />} />
+        <Route path="/garmin/success" element={<GarminConnectSuccess />} />
       </Routes>
     </Router>
   );
