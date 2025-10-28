@@ -1,15 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { Users, RefreshCw, Trash2, Edit, Mail, Calendar, Shield, MessageSquare, CheckSquare, Square, Settings, Flag, Key, Activity } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Users, RefreshCw, Trash2, Edit, Mail, Calendar, Shield, MessageSquare, CheckSquare, Square, Settings, Flag, Key, Activity, Save, X } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card.jsx';
 import { Button } from '../components/ui/button.jsx';
 import toast, { Toaster } from 'react-hot-toast';
 
 const AdminAthletes = () => {
+  const navigate = useNavigate();
   const [athletes, setAthletes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedAthletes, setSelectedAthletes] = useState(new Set());
   const [selectAll, setSelectAll] = useState(false);
   const [athleteToDelete, setAthleteToDelete] = useState(null);
+  const [editingAthlete, setEditingAthlete] = useState(null);
+  const [editData, setEditData] = useState({});
 
   // Mock athlete data for testing - replace with real API call
   const mockAthletes = [
@@ -110,22 +114,49 @@ const AdminAthletes = () => {
     }
 
     try {
-      // TODO: Replace with actual API call
-      // const response = await fetch(`http://localhost:3001/api/athletes/${athlete.id}`, {
-      //   method: 'DELETE',
-      //   headers: { 
-      //     'Content-Type': 'application/json'
-      //   }
-      // });
-
-      // For now, just remove from local state
-      setAthletes(prevAthletes => prevAthletes.filter(a => a.id !== athlete.id));
-      setSelectedAthletes(prevSelected => {
-        const newSelected = new Set(prevSelected);
-        newSelected.delete(athlete.id);
-        return newSelected;
+      const athleteId = athlete.athleteId || athlete.id;
+      console.log('🗑️ Sending DELETE request for athlete:', athleteId);
+      
+      const response = await fetch(`https://gofastbackendv2-fall2025.onrender.com/api/athlete/${athleteId}`, {
+        method: 'DELETE',
+        headers: { 
+          'Content-Type': 'application/json'
+        }
       });
-      toast.success(`Athlete ${athlete.firstName || athlete.email} deleted successfully`);
+
+      console.log('🗑️ Response status:', response.status);
+      
+      if (response.ok) {
+        // Remove from local state on successful deletion
+        setAthletes(prevAthletes => prevAthletes.filter(a => (a.athleteId || a.id) !== athleteId));
+        setSelectedAthletes(prevSelected => {
+          const newSelected = new Set(prevSelected);
+          newSelected.delete(athleteId);
+          return newSelected;
+        });
+        
+        // Update localStorage cache
+        const storedAthletes = JSON.parse(localStorage.getItem('athletesData') || '[]');
+        const updatedAthletes = storedAthletes.filter(a => (a.athleteId || a.id) !== athleteId);
+        localStorage.setItem('athletesData', JSON.stringify(updatedAthletes));
+        
+        toast.success(`Athlete ${athlete.firstName || athlete.email} deleted successfully`);
+        console.log('🗑️ Athlete removed from frontend state and cache');
+      } else if (response.status === 404) {
+        // Athlete already deleted from database, remove from UI
+        setAthletes(prevAthletes => prevAthletes.filter(a => (a.athleteId || a.id) !== athleteId));
+        setSelectedAthletes(prevSelected => {
+          const newSelected = new Set(prevSelected);
+          newSelected.delete(athleteId);
+          return newSelected;
+        });
+        toast.success('Athlete already deleted from database');
+        console.log('🗑️ Athlete was already deleted from database');
+      } else {
+        const errorText = await response.text();
+        console.error('🗑️ Delete failed:', response.status, errorText);
+        throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
+      }
     } catch (err) {
       console.error('🗑️ Delete error:', err);
       toast.error('Failed to delete athlete: ' + err.message);
@@ -134,41 +165,55 @@ const AdminAthletes = () => {
     }
   };
 
-  const handleMessageAthlete = (athlete) => {
-    const templates = {
-      welcomeMessage: `Hi ${athlete.firstName || 'there'}!
+  const handleEditAthlete = (athlete) => {
+    setEditingAthlete(athlete.athleteId || athlete.id);
+    setEditData({ ...athlete });
+  };
 
-Welcome to GoFast! We're excited to have you join our running community.
-
-Complete your profile to get the most out of GoFast: [Profile Link]
-
-Happy running!
-GoFast Team`,
+  const handleSaveEdit = async (athleteId) => {
+    try {
+      console.log('💾 Saving athlete data:', editData);
       
-      trainingReminder: `Hi ${athlete.firstName || 'there'}!
+      const response = await fetch(`https://gofastbackendv2-fall2025.onrender.com/api/athlete/${athleteId}`, {
+        method: 'PUT',
+        headers: { 
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(editData)
+      });
 
-Just checking in on your training progress. How are things going?
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
 
-Need any help with your training plan or have questions about GoFast?
-
-Keep up the great work!
-GoFast Team`
-    };
-
-    const template = window.prompt(
-      'Choose a message template:\n\n' +
-      '1. Welcome Message\n' +
-      '2. Training Reminder\n\n' +
-      'Or type your custom message:',
-      templates.welcomeMessage
-    );
-
-    if (template) {
-      // TODO: Implement actual messaging backend
-      console.log('Message to send:', template);
-      console.log('To athlete:', athlete.email);
-      toast.success(`Message prepared for ${athlete.email}`);
+      const result = await response.json();
+      console.log('✅ Athlete updated:', result);
+      
+      // Update local state with the response from server
+      setAthletes(prevAthletes => 
+        prevAthletes.map(athlete => 
+          (athlete.athleteId || athlete.id) === athleteId ? result.athlete : athlete
+        )
+      );
+      
+      // Update localStorage cache
+      const storedAthletes = JSON.parse(localStorage.getItem('athletesData') || '[]');
+      const updatedAthletes = storedAthletes.map(athlete => 
+        (athlete.athleteId || athlete.id) === athleteId ? result.athlete : athlete
+      );
+      localStorage.setItem('athletesData', JSON.stringify(updatedAthletes));
+      
+      setEditingAthlete(null);
+      toast.success('Athlete updated successfully!');
+    } catch (error) {
+      console.error('❌ Error saving athlete:', error);
+      toast.error('Failed to save athlete: ' + error.message);
     }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingAthlete(null);
+    setEditData({});
   };
 
   // Checkbox handlers
@@ -409,7 +454,12 @@ GoFast Team`
                           
                           <div className="flex-1">
                             <div className="font-medium text-gray-900">
-                              {athlete.firstName && athlete.lastName ? `${athlete.firstName} ${athlete.lastName}` : 'No Name Set'}
+                              <button 
+                                onClick={() => navigate(`/athlete/${athleteId}`)}
+                                className="hover:text-orange-600 hover:underline"
+                              >
+                                {athlete.firstName && athlete.lastName ? `${athlete.firstName} ${athlete.lastName}` : 'No Name Set'}
+                              </button>
                             </div>
                             <div className="text-sm text-gray-600">{athlete.email}</div>
                             <div className="text-sm text-gray-500 space-y-1">
@@ -451,36 +501,47 @@ GoFast Team`
                       </div>
                       
                       <div className="flex gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleMessageAthlete(athlete)}
-                        >
-                          <MessageSquare className="h-4 w-4 mr-1" />
-                          Message
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            // TODO: Implement athlete modification
-                            console.log('Modify athlete:', athlete.id);
-                            toast.success('Athlete modification coming soon!');
-                          }}
-                        >
-                          <Edit className="h-4 w-4 mr-1" />
-                          Modify
-                        </Button>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => handleDeleteAthlete(athlete)}
-                          title="Delete athlete"
-                          disabled={athleteToDelete?.id === athlete.id}
-                        >
-                          <Trash2 className="h-4 w-4 mr-1" />
-                          {athleteToDelete?.id === athlete.id ? 'Deleting...' : 'Delete'}
-                        </Button>
+                        {editingAthlete === athleteId ? (
+                          <>
+                            <Button
+                              size="sm"
+                              onClick={() => handleSaveEdit(athleteId)}
+                              className="bg-green-600 hover:bg-green-700"
+                            >
+                              <Edit className="h-4 w-4 mr-1" />
+                              Save
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={handleCancelEdit}
+                            >
+                              <X className="h-4 w-4 mr-1" />
+                              Cancel
+                            </Button>
+                          </>
+                        ) : (
+                          <>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleEditAthlete(athlete)}
+                            >
+                              <Edit className="h-4 w-4 mr-1" />
+                              Modify
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => handleDeleteAthlete(athlete)}
+                              title="Delete athlete"
+                              disabled={athleteToDelete?.id === athlete.id}
+                            >
+                              <Trash2 className="h-4 w-4 mr-1" />
+                              {athleteToDelete?.id === athlete.id ? 'Deleting...' : 'Delete'}
+                            </Button>
+                          </>
+                        )}
                       </div>
                     </div>
                   );
