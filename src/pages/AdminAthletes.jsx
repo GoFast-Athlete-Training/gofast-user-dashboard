@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, RefreshCw, Trash2, Edit, Mail, Calendar, Shield, MessageSquare, CheckSquare, Square, Settings, Flag, Key, Activity, Save, X } from 'lucide-react';
+import { Users, RefreshCw, Trash2, Edit, Mail, Calendar, Shield, MessageSquare, CheckSquare, Square, Settings, Flag, Key, Activity, Save, X, Eye } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card.jsx';
 import { Button } from '../components/ui/button.jsx';
 import toast, { Toaster } from 'react-hot-toast';
@@ -371,29 +371,26 @@ const AdminAthletes = () => {
             </div>
           ) : (
             <>
-              {/* Profile Completeness Summary */}
-              <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-                <h3 className="text-lg font-semibold mb-3">Profile Completeness Summary</h3>
-                <div className="grid grid-cols-3 gap-4">
-                  {['Complete', 'Partial', 'Incomplete'].map(status => {
-                    const count = athletes.filter(athlete => {
-                      const completeness = getProfileCompleteness(athlete);
-                      return completeness.label === status;
-                    }).length;
-                    return (
-                      <div key={status} className="text-center">
-                        <div className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
-                          status === 'Complete' ? 'bg-green-100 text-green-800' :
-                          status === 'Partial' ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-red-100 text-red-800'
-                        }`}>
-                          {status}
-                        </div>
-                        <div className="text-2xl font-bold mt-1">{count}</div>
-                        <div className="text-xs text-gray-600">{status} profiles</div>
-                      </div>
-                    );
-                  })}
+              {/* Cool Metrics Dashboard */}
+              <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
+                <h3 className="text-lg font-semibold mb-3 text-gray-800">GoFast Metrics</h3>
+                <div className="grid grid-cols-4 gap-4">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-blue-600">{athletes.length}</div>
+                    <div className="text-xs text-gray-600">Total Athletes</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-green-600">{athletes.filter(a => a.status === 'active').length}</div>
+                    <div className="text-xs text-gray-600">Active Users</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-purple-600">{athletes.filter(a => a.primarySport).length}</div>
+                    <div className="text-xs text-gray-600">With Sport</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-orange-600">{athletes.filter(a => a.city).length}</div>
+                    <div className="text-xs text-gray-600">With Location</div>
+                  </div>
                 </div>
               </div>
               
@@ -525,6 +522,14 @@ const AdminAthletes = () => {
                             <Button
                               variant="outline"
                               size="sm"
+                              onClick={() => navigate(`/athlete/${athleteId}`)}
+                            >
+                              <Eye className="h-4 w-4 mr-1" />
+                              View
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
                               onClick={() => handleEditAthlete(athlete)}
                             >
                               <Edit className="h-4 w-4 mr-1" />
@@ -535,10 +540,10 @@ const AdminAthletes = () => {
                               size="sm"
                               onClick={() => handleDeleteAthlete(athlete)}
                               title="Delete athlete"
-                              disabled={athleteToDelete?.id === athlete.id}
+                              disabled={athleteToDelete?.athleteId === athleteId}
                             >
                               <Trash2 className="h-4 w-4 mr-1" />
-                              {athleteToDelete?.id === athlete.id ? 'Deleting...' : 'Delete'}
+                              {athleteToDelete?.athleteId === athleteId ? 'Deleting...' : 'Delete'}
                             </Button>
                           </>
                         )}
