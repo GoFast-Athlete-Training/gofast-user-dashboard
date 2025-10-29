@@ -530,6 +530,14 @@ const AdminAthletes = () => {
                             <Button
                               variant="outline"
                               size="sm"
+                              onClick={() => navigate(`/athlete/${athleteId}/activities`)}
+                            >
+                              <Activity className="h-4 w-4 mr-1" />
+                              Activities
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
                               onClick={() => handleEditAthlete(athlete)}
                             >
                               <Edit className="h-4 w-4 mr-1" />
