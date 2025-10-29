@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card.jsx';
 import { Button } from '../components/ui/button.jsx';
-import { Users, Database, BarChart3, MessageSquare, Settings, LogOut, Zap } from 'lucide-react';
+import { Users, Database, BarChart3, MessageSquare, Settings, LogOut, Zap, Activity } from 'lucide-react';
 
 const DashboardNavOptions = () => {
   const navigate = useNavigate();
@@ -18,6 +18,14 @@ const DashboardNavOptions = () => {
       icon: <Users className="h-8 w-8" />,
       path: '/athlete-admin',
       color: 'bg-blue-100 text-blue-600',
+      priority: 'high'
+    },
+    {
+      title: 'All Activities',
+      description: 'View ALL activities in the system - debug if activities are being saved',
+      icon: <Activity className="h-8 w-8" />,
+      path: '/all-activities',
+      color: 'bg-green-100 text-green-600',
       priority: 'high'
     },
     {
