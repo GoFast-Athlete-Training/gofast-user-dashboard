@@ -15,45 +15,7 @@ const AdminAthletes = () => {
   const [editingAthlete, setEditingAthlete] = useState(null);
   const [editData, setEditData] = useState({});
 
-  // Mock athlete data for testing - replace with real API call
-  const mockAthletes = [
-    {
-      id: 'athlete_adam_cole_001',
-      firebaseId: 'firebase_adam_cole_001',
-      email: 'adam@example.com',
-      firstName: 'Adam',
-      lastName: 'Cole',
-      gofastHandle: 'adam_cole',
-      birthday: '1990-01-15',
-      gender: 'male',
-      city: 'Charlotte',
-      state: 'NC',
-      primarySport: 'running',
-      bio: 'Passionate runner focused on marathon training and community building.',
-      instagram: '@adamcole_runs',
-      createdAt: '2024-01-15T10:30:00.000Z',
-      updatedAt: '2024-01-15T10:30:00.000Z',
-      status: 'active'
-    },
-    {
-      id: 'athlete_sarah_johnson_002',
-      firebaseId: 'firebase_sarah_johnson_002',
-      email: 'sarah@example.com',
-      firstName: 'Sarah',
-      lastName: 'Johnson',
-      gofastHandle: 'sarah_runs',
-      birthday: '1992-05-20',
-      gender: 'female',
-      city: 'Austin',
-      state: 'TX',
-      primarySport: 'running',
-      bio: 'Ultra-marathoner and trail running enthusiast.',
-      instagram: '@sarah_runs_trails',
-      createdAt: '2024-01-10T08:15:00.000Z',
-      updatedAt: '2024-01-10T08:15:00.000Z',
-      status: 'active'
-    }
-  ];
+  // Mock athlete data removed - only show real data from backend
 
   const loadAthletesFromAPI = async () => {
     setLoading(true);
@@ -94,10 +56,9 @@ const AdminAthletes = () => {
       console.error('❌ Error loading athletes:', err);
       toast.error('Failed to load athletes: ' + err.message);
       
-      // Fallback to mock data for development
-      console.log('🔄 Falling back to mock data...');
-      setAthletes(mockAthletes);
-      toast.info('Using mock data - backend connection failed');
+      // Don't fallback to mock data - only show real athletes
+      setAthletes([]);
+      console.log('⚠️ No athletes loaded - backend connection failed');
     } finally {
       setLoading(false);
     }
