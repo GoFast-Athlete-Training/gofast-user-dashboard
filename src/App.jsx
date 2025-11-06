@@ -7,7 +7,6 @@ import AdminAthletes from './pages/AdminAthletes';
 import AthleteDetails from './pages/AthleteDetails';
 import AthleteActivities from './pages/AthleteActivities';
 import AllActivities from './pages/AllActivities';
-import GarminConnectSuccess from './pages/GarminConnectSuccess';
 
 function App() {
   return (
@@ -19,7 +18,6 @@ function App() {
         <Route path="/athlete/:athleteId" element={<AthleteDetails />} />
         <Route path="/athlete/:athleteId/activities" element={<AthleteActivities />} />
         <Route path="/all-activities" element={<AllActivities />} />
-        <Route path="/garmin/success" element={<GarminConnectSuccess />} />
       </Routes>
     </Router>
   );

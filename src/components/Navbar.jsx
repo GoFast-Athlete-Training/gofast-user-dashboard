@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Home, Users, LogOut, RefreshCw } from 'lucide-react';
-import { Button } from './ui/button.jsx';
+import { Button } from './ui/button';
 import toast from 'react-hot-toast';
 
 const Navbar = () => {

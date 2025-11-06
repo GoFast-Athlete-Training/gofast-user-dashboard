@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card.jsx';
-import { Button } from '../components/ui/button.jsx';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
+import { Button } from '../components/ui/button';
 import Navbar from '../components/Navbar';
 import { Users, Database, BarChart3, MessageSquare, Settings, Zap, Activity } from 'lucide-react';
 

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Activity, Calendar, MapPin, TrendingUp, Clock, Ruler, Heart, Zap, RefreshCw, Plus, Trash2 } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card.jsx';
-import { Button } from '../components/ui/button.jsx';
-import AdminUpsertWizard from '../components/AdminUpsertWizard.jsx';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
+import { Button } from '../components/ui/button';
+import AdminUpsertWizard from '../components/AdminUpsertWizard';
 import Navbar from '../components/Navbar';
 import toast, { Toaster } from 'react-hot-toast';
 

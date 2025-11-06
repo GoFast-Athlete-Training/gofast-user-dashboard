@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Activity, RefreshCw, User, AlertCircle, Clock, Ruler, Heart, Zap } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card.jsx';
-import { Button } from '../components/ui/button.jsx';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
+import { Button } from '../components/ui/button';
 import Navbar from '../components/Navbar';
 import toast, { Toaster } from 'react-hot-toast';
 

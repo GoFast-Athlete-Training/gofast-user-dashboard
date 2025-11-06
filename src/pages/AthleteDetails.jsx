@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, User, Mail, Calendar, MapPin, Activity, Shield, Key, Edit, Save, X, Plus } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card.jsx';
-import { Button } from '../components/ui/button.jsx';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
+import { Button } from '../components/ui/button';
 import Navbar from '../components/Navbar';
-import AdminUpsertWizard from '../components/AdminUpsertWizard.jsx';
+import AdminUpsertWizard from '../components/AdminUpsertWizard';
 import toast, { Toaster } from 'react-hot-toast';
 
 const AthleteDetails = () => {
