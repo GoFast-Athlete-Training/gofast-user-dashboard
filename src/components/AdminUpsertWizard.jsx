@@ -311,6 +311,7 @@ const AdminUpsertWizard = ({ isOpen, onClose, athlete }) => {
             {loading ? 'Creating...' : success ? 'Done!' : 'Create Record'}
           </Button>
         </div>
+        </div>
       </div>
     </div>
   );
