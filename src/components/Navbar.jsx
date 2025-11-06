@@ -23,10 +23,13 @@ const Navbar = () => {
       localStorage.removeItem('athletesData');
       localStorage.removeItem('athletesCount');
       localStorage.removeItem('athletesLastUpdated');
+      localStorage.removeItem('runCrewsData');
+      localStorage.removeItem('runCrewsCount');
+      localStorage.removeItem('runCrewsLastUpdated');
       localStorage.removeItem('dashboardHydrated');
       
-      // Re-hydrate from API
-      const response = await fetch('https://gofastbackendv2-fall2025.onrender.com/api/athlete/admin/hydrate', {
+      // Re-hydrate from API - use universal route to get both athletes and runcrews
+      const response = await fetch('https://gofastbackendv2-fall2025.onrender.com/api/admin/hydrate?entity=athletes,runcrews', {
         method: 'GET',
         headers: { 
           'Content-Type': 'application/json'
@@ -39,13 +42,26 @@ const Navbar = () => {
 
       const data = await response.json();
       
-      if (data.success && data.athletes) {
-        localStorage.setItem('athletesData', JSON.stringify(data.athletes));
-        localStorage.setItem('athletesCount', data.count.toString());
-        localStorage.setItem('athletesLastUpdated', new Date().toISOString());
+      if (data.success) {
+        // Store athletes data
+        if (data.athletes) {
+          localStorage.setItem('athletesData', JSON.stringify(data.athletes));
+          localStorage.setItem('athletesCount', data.count?.athletes?.toString() || data.athletes.length.toString());
+          localStorage.setItem('athletesLastUpdated', new Date().toISOString());
+        }
+        
+        // Store runcrews data
+        if (data.runCrews) {
+          localStorage.setItem('runCrewsData', JSON.stringify(data.runCrews));
+          localStorage.setItem('runCrewsCount', data.count?.runCrews?.toString() || data.runCrews.length.toString());
+          localStorage.setItem('runCrewsLastUpdated', new Date().toISOString());
+        }
+        
         localStorage.setItem('dashboardHydrated', 'true');
         
-        toast.success(`Refreshed ${data.athletes.length} athletes!`, { id: 'refresh-users' });
+        const athleteCount = data.athletes?.length || 0;
+        const runCrewCount = data.runCrews?.length || 0;
+        toast.success(`Refreshed ${athleteCount} athletes and ${runCrewCount} runcrews!`, { id: 'refresh-users' });
         
         // Reload the page to update all components
         window.location.reload();
