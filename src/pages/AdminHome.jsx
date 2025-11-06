@@ -7,14 +7,14 @@ import toast, { Toaster } from 'react-hot-toast';
 const AdminHome = () => {
   const navigate = useNavigate();
 
-  // GLOBAL HYDRATION - Load data once for entire dashboard
+  // GLOBAL HYDRATION - Load data once for entire dashboard (ONLY if localStorage is empty)
   useEffect(() => {
     const hydrateDashboard = async () => {
       console.log('🚀 GLOBAL HYDRATION: Loading dashboard data...');
       
       try {
-        // Call our working hydration endpoint
-        const response = await fetch('https://gofastbackendv2-fall2025.onrender.com/api/athlete/admin/hydrate', {
+        // Use universal hydration route - get athletes AND runCrews in one call
+        const response = await fetch('https://gofastbackendv2-fall2025.onrender.com/api/admin/hydrate?entity=athletes,runcrews', {
           method: 'GET',
           headers: { 
             'Content-Type': 'application/json'
@@ -28,18 +28,29 @@ const AdminHome = () => {
         const data = await response.json();
         console.log('✅ GLOBAL HYDRATION: Response received:', data);
         
-        if (data.success && data.athletes) {
-          // STORE FULL OBJECTS IN localStorage FOR ENTIRE DASHBOARD
-          localStorage.setItem('athletesData', JSON.stringify(data.athletes));
-          localStorage.setItem('athletesCount', data.count.toString());
+        if (data.success) {
+          // STORE ALL ENTITIES IN localStorage FOR ENTIRE DASHBOARD
+          if (data.athletes) {
+            localStorage.setItem('athletesData', JSON.stringify(data.athletes));
+            localStorage.setItem('athletesCount', data.count?.athletes?.toString() || data.athletes.length.toString());
+            console.log('💾 GLOBAL HYDRATION: Stored', data.athletes.length, 'athletes in localStorage');
+          }
+          
+          if (data.runCrews) {
+            localStorage.setItem('runCrewsData', JSON.stringify(data.runCrews));
+            localStorage.setItem('runCrewsCount', data.count?.runCrews?.toString() || data.runCrews.length.toString());
+            console.log('💾 GLOBAL HYDRATION: Stored', data.runCrews.length, 'runCrews in localStorage');
+          }
+          
           localStorage.setItem('athletesLastUpdated', new Date().toISOString());
-          localStorage.setItem('athletesStatus', 'loaded');
+          localStorage.setItem('runCrewsLastUpdated', new Date().toISOString());
           localStorage.setItem('dashboardHydrated', 'true');
           
-          console.log('💾 GLOBAL HYDRATION: Stored', data.athletes.length, 'athletes in localStorage');
           console.log('🎯 GLOBAL HYDRATION: Dashboard ready for all components!');
           
-          toast.success(`Dashboard hydrated with ${data.athletes.length} athletes!`);
+          const athleteCount = data.athletes?.length || 0;
+          const runCrewCount = data.runCrews?.length || 0;
+          toast.success(`Dashboard hydrated: ${athleteCount} athletes, ${runCrewCount} runCrews!`);
         } else {
           throw new Error(data.message || 'Invalid response format');
         }
@@ -49,28 +60,22 @@ const AdminHome = () => {
         
         // Set fallback status
         localStorage.setItem('dashboardHydrated', 'false');
-        localStorage.setItem('athletesStatus', 'error');
       }
     };
 
-    // Only hydrate if not already done recently
-    const lastHydrated = localStorage.getItem('athletesLastUpdated');
+    // Check if already hydrated - if yes, NO API CALL
     const dashboardHydrated = localStorage.getItem('dashboardHydrated');
+    const athletesData = localStorage.getItem('athletesData');
+    const runCrewsData = localStorage.getItem('runCrewsData');
     
-    if (!dashboardHydrated || !lastHydrated) {
-      hydrateDashboard();
-    } else {
-      // Check if data is stale (older than 10 minutes)
-      const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
-      const lastUpdate = new Date(lastHydrated);
-      
-      if (lastUpdate < tenMinutesAgo) {
-        console.log('🔄 GLOBAL HYDRATION: Data is stale, refreshing...');
-        hydrateDashboard();
-      } else {
-        console.log('✅ GLOBAL HYDRATION: Using fresh cached data');
-      }
+    if (dashboardHydrated === 'true' && athletesData && runCrewsData) {
+      console.log('✅ GLOBAL HYDRATION: Already hydrated - using localStorage (NO API CALL)');
+      return; // NO API CALL - data already in localStorage
     }
+    
+    // Only hydrate if localStorage is empty
+    console.log('🔄 GLOBAL HYDRATION: localStorage empty - calling API');
+    hydrateDashboard();
   }, []);
 
   const handleEnterAdmin = () => {

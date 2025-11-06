@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, RefreshCw, Trash2, Edit, Mail, Calendar, Shield, MessageSquare, CheckSquare, Square, Settings, Flag, Key, Activity, Save, X, Eye } from 'lucide-react';
+import { Users, RefreshCw, Trash2, Edit, Mail, Calendar, Shield, MessageSquare, CheckSquare, Square, Settings, Flag, Key, Activity, Save, X, Eye, Plus } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card.jsx';
 import { Button } from '../components/ui/button.jsx';
+import Navbar from '../components/Navbar.jsx';
+import AdminUpsertWizard from '../components/AdminUpsertWizard.jsx';
 import toast, { Toaster } from 'react-hot-toast';
 
 const AdminAthletes = () => {
@@ -12,19 +14,47 @@ const AdminAthletes = () => {
   const [selectedAthletes, setSelectedAthletes] = useState(new Set());
   const [selectAll, setSelectAll] = useState(false);
   const [athleteToDelete, setAthleteToDelete] = useState(null);
-  const [editingAthlete, setEditingAthlete] = useState(null);
-  const [editData, setEditData] = useState({});
+  const [upsertWizardOpen, setUpsertWizardOpen] = useState(false);
+  const [selectedAthleteForUpsert, setSelectedAthleteForUpsert] = useState(null);
+  // Removed inline editing - editing happens on detail page now
 
   // Mock athlete data removed - only show real data from backend
 
-  const loadAthletesFromAPI = async () => {
-    setLoading(true);
-    
-    console.log('🔄 Loading athletes from GoFast Backend V2...');
+  // Load athletes from localStorage (NO API CALL)
+  const loadAthletesFromLocalStorage = () => {
+    console.log('📦 Loading athletes from localStorage (NO API CALL)...');
     
     try {
-      // Call our working hydration endpoint
-      const response = await fetch('https://gofastbackendv2-fall2025.onrender.com/api/athlete/admin/hydrate', {
+      const storedAthletes = localStorage.getItem('athletesData');
+      
+      if (storedAthletes) {
+        const athletes = JSON.parse(storedAthletes);
+        console.log('✅ Loaded', athletes.length, 'athletes from localStorage');
+        setAthletes(athletes);
+        return athletes;
+      } else {
+        console.warn('⚠️ No athletes in localStorage - dashboard may need hydration');
+        setAthletes([]);
+        toast.error('No athlete data available. Please refresh the dashboard.');
+        return [];
+      }
+    } catch (error) {
+      console.error('❌ Error loading athletes from localStorage:', error);
+      toast.error('Failed to load athletes from cache');
+      setAthletes([]);
+      return [];
+    }
+  };
+
+  // Refresh athletes (ONLY called when user explicitly clicks refresh)
+  const refreshAthletes = async () => {
+    setLoading(true);
+    
+    console.log('🔄 REFRESH: Loading athletes from API...');
+    
+    try {
+      // Use universal hydration route
+      const response = await fetch('https://gofastbackendv2-fall2025.onrender.com/api/admin/hydrate?entity=athletes,runcrews', {
         method: 'GET',
         headers: { 
           'Content-Type': 'application/json'
@@ -36,29 +66,30 @@ const AdminAthletes = () => {
       }
 
       const data = await response.json();
-      console.log('✅ Hydration response:', data);
+      console.log('✅ REFRESH: Response received:', data);
       
       if (data.success && data.athletes) {
-        // STORE FULL OBJECTS IN localStorage
+        // Update localStorage
         localStorage.setItem('athletesData', JSON.stringify(data.athletes));
-        localStorage.setItem('athletesCount', data.count.toString());
+        localStorage.setItem('athletesCount', data.count?.athletes?.toString() || data.athletes.length.toString());
         localStorage.setItem('athletesLastUpdated', new Date().toISOString());
-        localStorage.setItem('athletesStatus', 'loaded');
         
-        console.log('💾 Stored athletes in localStorage:', data.athletes.length, 'athletes');
+        if (data.runCrews) {
+          localStorage.setItem('runCrewsData', JSON.stringify(data.runCrews));
+          localStorage.setItem('runCrewsCount', data.count?.runCrews?.toString() || data.runCrews.length.toString());
+          localStorage.setItem('runCrewsLastUpdated', new Date().toISOString());
+        }
+        
+        console.log('💾 REFRESH: Updated localStorage with', data.athletes.length, 'athletes');
         
         setAthletes(data.athletes);
-        toast.success(`Loaded ${data.athletes.length} athletes from GoFast Backend V2`);
+        toast.success(`Refreshed: ${data.athletes.length} athletes loaded`);
       } else {
         throw new Error(data.message || 'Invalid response format');
       }
     } catch (err) {
-      console.error('❌ Error loading athletes:', err);
-      toast.error('Failed to load athletes: ' + err.message);
-      
-      // Don't fallback to mock data - only show real athletes
-      setAthletes([]);
-      console.log('⚠️ No athletes loaded - backend connection failed');
+      console.error('❌ REFRESH: Error loading athletes:', err);
+      toast.error('Failed to refresh athletes: ' + err.message);
     } finally {
       setLoading(false);
     }
@@ -126,56 +157,8 @@ const AdminAthletes = () => {
     }
   };
 
-  const handleEditAthlete = (athlete) => {
-    setEditingAthlete(athlete.athleteId || athlete.id);
-    setEditData({ ...athlete });
-  };
-
-  const handleSaveEdit = async (athleteId) => {
-    try {
-      console.log('💾 Saving athlete data:', editData);
-      
-      const response = await fetch(`https://gofastbackendv2-fall2025.onrender.com/api/athlete/${athleteId}`, {
-        method: 'PUT',
-        headers: { 
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(editData)
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      const result = await response.json();
-      console.log('✅ Athlete updated:', result);
-      
-      // Update local state with the response from server
-      setAthletes(prevAthletes => 
-        prevAthletes.map(athlete => 
-          (athlete.athleteId || athlete.id) === athleteId ? result.athlete : athlete
-        )
-      );
-      
-      // Update localStorage cache
-      const storedAthletes = JSON.parse(localStorage.getItem('athletesData') || '[]');
-      const updatedAthletes = storedAthletes.map(athlete => 
-        (athlete.athleteId || athlete.id) === athleteId ? result.athlete : athlete
-      );
-      localStorage.setItem('athletesData', JSON.stringify(updatedAthletes));
-      
-      setEditingAthlete(null);
-      toast.success('Athlete updated successfully!');
-    } catch (error) {
-      console.error('❌ Error saving athlete:', error);
-      toast.error('Failed to save athlete: ' + error.message);
-    }
-  };
-
-  const handleCancelEdit = () => {
-    setEditingAthlete(null);
-    setEditData({});
-  };
+  // Edit functionality moved to detail page (AthleteDetails.jsx)
+  // Users click "Edit" button → navigate to detail page → edit there
 
   // Checkbox handlers
   const handleSelectAthlete = (athleteId) => {
@@ -286,14 +269,16 @@ const AdminAthletes = () => {
         toast.error('Failed to load cached athlete data');
       }
     } else {
-      console.log('📡 AdminAthletes: No global data, falling back to API...');
-      loadAthletesFromAPI();
+      console.log('⚠️ AdminAthletes: No data in localStorage - dashboard needs hydration');
+      loadAthletesFromLocalStorage(); // Will show empty state - user should refresh dashboard
     }
   }, []);
 
   return (
-    <div className="container mx-auto p-6">
-      <Toaster position="top-right" />
+    <div className="min-h-screen bg-gray-50">
+      <Navbar />
+      <div className="container mx-auto p-6">
+        <Toaster position="top-right" />
       
       <Card>
         <CardHeader>
@@ -309,7 +294,7 @@ const AdminAthletes = () => {
             </div>
             <div className="flex items-center gap-2">
               <Button 
-                onClick={loadAthletesFromAPI} 
+                onClick={refreshAthletes} 
                 disabled={loading}
                 variant="outline"
                 size="sm"
@@ -459,63 +444,44 @@ const AdminAthletes = () => {
                       </div>
                       
                       <div className="flex gap-2">
-                        {editingAthlete === athleteId ? (
-                          <>
-                            <Button
-                              size="sm"
-                              onClick={() => handleSaveEdit(athleteId)}
-                              className="bg-green-600 hover:bg-green-700"
-                            >
-                              <Edit className="h-4 w-4 mr-1" />
-                              Save
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={handleCancelEdit}
-                            >
-                              <X className="h-4 w-4 mr-1" />
-                              Cancel
-                            </Button>
-                          </>
-                        ) : (
-                          <>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => navigate(`/athlete/${athleteId}`)}
-                            >
-                              <Eye className="h-4 w-4 mr-1" />
-                              View
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => navigate(`/athlete/${athleteId}/activities`)}
-                            >
-                              <Activity className="h-4 w-4 mr-1" />
-                              Activities
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleEditAthlete(athlete)}
-                            >
-                              <Edit className="h-4 w-4 mr-1" />
-                              Modify
-                            </Button>
-                            <Button
-                              variant="destructive"
-                              size="sm"
-                              onClick={() => handleDeleteAthlete(athlete)}
-                              title="Delete athlete"
-                              disabled={athleteToDelete?.athleteId === athleteId}
-                            >
-                              <Trash2 className="h-4 w-4 mr-1" />
-                              {athleteToDelete?.athleteId === athleteId ? 'Deleting...' : 'Delete'}
-                            </Button>
-                          </>
-                        )}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => navigate(`/athlete/${athleteId}`)}
+                        >
+                          <Eye className="h-4 w-4 mr-1" />
+                          View
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => navigate(`/athlete/${athleteId}/activities`)}
+                        >
+                          <Activity className="h-4 w-4 mr-1" />
+                          Activities
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedAthleteForUpsert(athlete);
+                            setUpsertWizardOpen(true);
+                          }}
+                          className="bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-300"
+                        >
+                          <Plus className="h-4 w-4 mr-1" />
+                          Add to New Model
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => handleDeleteAthlete(athlete)}
+                          title="Delete athlete"
+                          disabled={athleteToDelete?.athleteId === athleteId}
+                        >
+                          <Trash2 className="h-4 w-4 mr-1" />
+                          {athleteToDelete?.athleteId === athleteId ? 'Deleting...' : 'Delete'}
+                        </Button>
                       </div>
                     </div>
                   );
@@ -525,6 +491,17 @@ const AdminAthletes = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Upsert Wizard Modal */}
+      <AdminUpsertWizard
+        isOpen={upsertWizardOpen}
+        onClose={() => {
+          setUpsertWizardOpen(false);
+          setSelectedAthleteForUpsert(null);
+        }}
+        athlete={selectedAthleteForUpsert}
+      />
+    </div>
     </div>
   );
 };
