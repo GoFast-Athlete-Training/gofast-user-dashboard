@@ -1,12 +1,63 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import Navbar from '../components/Navbar';
-import { Users, Database, BarChart3, MessageSquare, Settings, Zap, Activity } from 'lucide-react';
+import { Users, Database, BarChart3, MessageSquare, Settings, Zap, Activity, UsersRound } from 'lucide-react';
 
 const DashboardNavOptions = () => {
   const navigate = useNavigate();
+  const [stats, setStats] = useState({
+    athletes: 0,
+    runCrews: 0,
+    activeThisWeek: 0,
+    newThisMonth: 0,
+    completedProfiles: 0
+  });
+
+  // Load stats from localStorage
+  useEffect(() => {
+    const athletesData = localStorage.getItem('athletesData');
+    const runCrewsData = localStorage.getItem('runCrewsData');
+    
+    if (athletesData) {
+      const athletes = JSON.parse(athletesData);
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      
+      const activeThisWeek = athletes.filter(a => {
+        const updated = a.updatedAt ? new Date(a.updatedAt) : new Date(a.createdAt);
+        return updated >= sevenDaysAgo;
+      }).length;
+      
+      const newThisMonth = athletes.filter(a => {
+        const created = new Date(a.createdAt);
+        return created >= thirtyDaysAgo;
+      }).length;
+      
+      const completedProfiles = athletes.filter(a => 
+        a.firstName && a.lastName && a.city && a.primarySport
+      ).length;
+      
+      setStats(prev => ({
+        ...prev,
+        athletes: athletes.length,
+        activeThisWeek,
+        newThisMonth,
+        completedProfiles
+      }));
+    }
+    
+    if (runCrewsData) {
+      const runCrews = JSON.parse(runCrewsData);
+      setStats(prev => ({
+        ...prev,
+        runCrews: runCrews.length
+      }));
+    }
+  }, []);
 
   const navOptions = [
     {
@@ -15,6 +66,14 @@ const DashboardNavOptions = () => {
       icon: <Users className="h-8 w-8" />,
       path: '/athlete-admin',
       color: 'bg-blue-100 text-blue-600',
+      priority: 'high'
+    },
+    {
+      title: 'RunCrews Management',
+      description: 'View and manage all RunCrews, members, and crew activities',
+      icon: <UsersRound className="h-8 w-8" />,
+      path: '/runcrews-admin',
+      color: 'bg-purple-100 text-purple-600',
       priority: 'high'
     },
     {
@@ -108,21 +167,25 @@ const DashboardNavOptions = () => {
             <CardDescription>Current state of your GoFast platform</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
               <div className="text-center">
-                <div className="text-3xl font-bold text-blue-600">0</div>
+                <div className="text-3xl font-bold text-blue-600">{stats.athletes}</div>
                 <div className="text-sm text-gray-600">Total Athletes</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-green-600">0</div>
+                <div className="text-3xl font-bold text-purple-600">{stats.runCrews}</div>
+                <div className="text-sm text-gray-600">Total RunCrews</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-green-600">{stats.activeThisWeek}</div>
                 <div className="text-sm text-gray-600">Active This Week</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-orange-600">0</div>
+                <div className="text-3xl font-bold text-orange-600">{stats.newThisMonth}</div>
                 <div className="text-sm text-gray-600">New This Month</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-purple-600">0</div>
+                <div className="text-3xl font-bold text-indigo-600">{stats.completedProfiles}</div>
                 <div className="text-sm text-gray-600">Completed Profiles</div>
               </div>
             </div>
