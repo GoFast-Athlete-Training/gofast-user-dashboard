@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, User, Mail, Calendar, MapPin, Activity, Shield, Key, Edit, Save, X } from 'lucide-react';
+import { ArrowLeft, User, Mail, Calendar, MapPin, Activity, Shield, Key, Edit, Save, X, Plus } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card.jsx';
 import { Button } from '../components/ui/button.jsx';
+import Navbar from '../components/Navbar';
+import AdminUpsertWizard from '../components/AdminUpsertWizard.jsx';
 import toast, { Toaster } from 'react-hot-toast';
 
 const AthleteDetails = () => {
@@ -12,6 +14,7 @@ const AthleteDetails = () => {
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [editData, setEditData] = useState({});
+  const [upsertWizardOpen, setUpsertWizardOpen] = useState(false);
 
   useEffect(() => {
     loadAthleteDetails();
@@ -57,16 +60,43 @@ const AthleteDetails = () => {
 
   const handleSave = async () => {
     try {
-      // TODO: Implement actual API call to update athlete
+      const athleteId = athlete.athleteId || athlete.id;
       console.log('💾 Saving athlete data:', editData);
       
-      // For now, just update local state
-      setAthlete(editData);
+      const response = await fetch(
+        `https://gofastbackendv2-fall2025.onrender.com/api/athlete/${athleteId}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(editData)
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const updatedAthlete = await response.json();
+      console.log('✅ Athlete updated:', updatedAthlete);
+      
+      // Update local state
+      setAthlete(updatedAthlete.athlete || updatedAthlete);
       setEditing(false);
+      
+      // Update localStorage cache
+      const storedAthletes = JSON.parse(localStorage.getItem('athletesData') || '[]');
+      const updatedAthletes = storedAthletes.map(a => 
+        (a.athleteId || a.id) === athleteId ? (updatedAthlete.athlete || updatedAthlete) : a
+      );
+      localStorage.setItem('athletesData', JSON.stringify(updatedAthletes));
+      
       toast.success('Athlete updated successfully!');
     } catch (error) {
       console.error('❌ Error saving athlete:', error);
-      toast.error('Failed to save athlete');
+      toast.error('Failed to save athlete: ' + error.message);
     }
   };
 
@@ -129,6 +159,8 @@ const AthleteDetails = () => {
   const profileCompleteness = getProfileCompleteness(athlete);
 
   return (
+    <div className="min-h-screen bg-gray-50">
+      <Navbar />
     <div className="container mx-auto p-6">
       <Toaster position="top-right" />
       
@@ -161,10 +193,19 @@ const AthleteDetails = () => {
               </Button>
             </>
           ) : (
-            <Button onClick={handleEdit}>
-              <Edit className="h-4 w-4 mr-2" />
-              Edit Athlete
-            </Button>
+            <>
+              <Button onClick={handleEdit}>
+                <Edit className="h-4 w-4 mr-2" />
+                Edit Athlete
+              </Button>
+              <Button
+                onClick={() => setUpsertWizardOpen(true)}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add to New Model
+              </Button>
+            </>
           )}
         </div>
       </div>
@@ -446,10 +487,20 @@ const AthleteDetails = () => {
           {/* Garmin Integration */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Activity className="h-5 w-5" />
-                Garmin Integration
-              </CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2">
+                  <Activity className="h-5 w-5" />
+                  Garmin Integration
+                </CardTitle>
+                <Button
+                  onClick={() => navigate(`/athlete/${athleteId}/activities`)}
+                  variant="outline"
+                  size="sm"
+                >
+                  <Activity className="h-4 w-4 mr-2" />
+                  View Activities
+                </Button>
+              </div>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -535,7 +586,15 @@ const AthleteDetails = () => {
             </CardContent>
           </Card>
         </div>
+        </div>
       </div>
+
+      {/* Upsert Wizard Modal */}
+      <AdminUpsertWizard
+        isOpen={upsertWizardOpen}
+        onClose={() => setUpsertWizardOpen(false)}
+        athlete={athlete}
+      />
     </div>
   );
 };

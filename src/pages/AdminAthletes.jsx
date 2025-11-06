@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Users, RefreshCw, Trash2, Edit, Mail, Calendar, Shield, MessageSquare, CheckSquare, Square, Settings, Flag, Key, Activity, Save, X, Eye, Plus } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card.jsx';
 import { Button } from '../components/ui/button.jsx';
-import Navbar from '../components/Navbar.jsx';
+import Navbar from '../components/Navbar';
 import AdminUpsertWizard from '../components/AdminUpsertWizard.jsx';
 import toast, { Toaster } from 'react-hot-toast';
 
@@ -192,15 +192,6 @@ const AdminAthletes = () => {
     });
   };
 
-  const getDaysSinceCreation = (createdAt) => {
-    if (!createdAt) return 'Unknown';
-    const created = new Date(createdAt);
-    const now = new Date();
-    const diffTime = Math.abs(now - created);
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
-  };
-
   const getAthleteStatus = (athlete) => {
     const status = athlete.status || 'active';
     
@@ -366,7 +357,6 @@ const AdminAthletes = () => {
                 {athletes.map((athlete) => {
                   const athleteStatus = getAthleteStatus(athlete);
                   const profileCompleteness = getProfileCompleteness(athlete);
-                  const daysSinceCreation = getDaysSinceCreation(athlete.createdAt);
                   const athleteId = athlete.athleteId || athlete.id;
                   const isSelected = selectedAthletes.has(athleteId);
                   

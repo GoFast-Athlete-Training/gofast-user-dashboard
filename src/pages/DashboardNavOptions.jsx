@@ -2,14 +2,11 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card.jsx';
 import { Button } from '../components/ui/button.jsx';
-import { Users, Database, BarChart3, MessageSquare, Settings, LogOut, Zap, Activity } from 'lucide-react';
+import Navbar from '../components/Navbar';
+import { Users, Database, BarChart3, MessageSquare, Settings, Zap, Activity } from 'lucide-react';
 
 const DashboardNavOptions = () => {
   const navigate = useNavigate();
-
-  const handleLogout = () => {
-    navigate('/');
-  };
 
   const navOptions = [
     {
@@ -22,18 +19,10 @@ const DashboardNavOptions = () => {
     },
     {
       title: 'All Activities',
-      description: 'View ALL activities in the system - debug if activities are being saved',
+      description: 'Debug view - see all activities across all athletes in the system',
       icon: <Activity className="h-8 w-8" />,
       path: '/all-activities',
       color: 'bg-green-100 text-green-600',
-      priority: 'high'
-    },
-    {
-      title: 'Back to Home',
-      description: 'Return to the main admin home page',
-      icon: <Settings className="h-8 w-8" />,
-      path: '/',
-      color: 'bg-gray-100 text-gray-600',
       priority: 'high'
     }
   ];
@@ -42,18 +31,14 @@ const DashboardNavOptions = () => {
   const lowPriorityOptions = navOptions.filter(option => option.priority === 'low');
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-gray-50">
+      <Navbar />
+      <div className="p-6">
       {/* Header */}
       <div className="max-w-7xl mx-auto mb-8">
-        <div className="flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">GoFast Admin Hub</h1>
             <p className="text-gray-600 mt-2">Manage your GoFast platform and athlete community</p>
-          </div>
-          <Button onClick={handleLogout} variant="outline">
-            <LogOut className="h-4 w-4 mr-2" />
-            Logout
-          </Button>
         </div>
       </div>
 
@@ -143,6 +128,7 @@ const DashboardNavOptions = () => {
             </div>
           </CardContent>
         </Card>
+      </div>
       </div>
     </div>
   );

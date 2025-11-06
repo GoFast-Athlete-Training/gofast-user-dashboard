@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Activity, Calendar, MapPin, TrendingUp, Clock, Ruler, Heart, Zap, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Activity, Calendar, MapPin, TrendingUp, Clock, Ruler, Heart, Zap, RefreshCw, Plus, Trash2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card.jsx';
 import { Button } from '../components/ui/button.jsx';
+import AdminUpsertWizard from '../components/AdminUpsertWizard.jsx';
+import Navbar from '../components/Navbar';
 import toast, { Toaster } from 'react-hot-toast';
 
 const AthleteActivities = () => {
@@ -11,6 +13,7 @@ const AthleteActivities = () => {
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [athlete, setAthlete] = useState(null);
+  const [upsertWizardOpen, setUpsertWizardOpen] = useState(false);
 
   useEffect(() => {
     loadAthleteInfo();
@@ -124,43 +127,95 @@ const AthleteActivities = () => {
     return '🏃';
   };
 
+  const handleDeleteActivity = async (activity) => {
+    if (!window.confirm(`Are you sure you want to delete this activity: ${activity.activityName || activity.activityType}?`)) {
+      return;
+    }
+
+    try {
+      const activityId = activity.id || activity.sourceActivityId;
+      if (!activityId) {
+        toast.error('Activity ID not found');
+        return;
+      }
+
+      const response = await fetch(
+        `https://gofastbackendv2-fall2025.onrender.com/api/admin/activities/${activityId}/delete`,
+        {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        }
+      );
+
+      if (!response.ok) {
+        // If route doesn't exist, try alternative endpoint
+        if (response.status === 404) {
+          toast.error('Delete endpoint not available. Contact backend team.');
+          return;
+        }
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      // Remove from local state
+      setActivities(prevActivities => prevActivities.filter(a => (a.id || a.sourceActivityId) !== activityId));
+      toast.success('Activity deleted successfully');
+    } catch (error) {
+      console.error('❌ Error deleting activity:', error);
+      toast.error('Failed to delete activity: ' + error.message);
+    }
+  };
+
   return (
-    <div className="container mx-auto p-6">
-      <Toaster position="top-right" />
-      
-      <div className="mb-6 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="outline"
-            onClick={() => navigate(`/athlete/${athleteId}`)}
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Athlete
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold">
-              Activities
-              {athlete && (
-                <span className="text-lg font-normal text-gray-600 ml-2">
-                  - {athlete.firstName} {athlete.lastName}
-                </span>
-              )}
-            </h1>
-            <p className="text-sm text-gray-500">
-              All activities synced from Garmin Connect
-            </p>
+    <div className="min-h-screen bg-gray-50">
+      <Navbar />
+      <div className="container mx-auto p-6">
+        <Toaster position="top-right" />
+        
+        <div className="mb-6 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Button
+              variant="outline"
+              onClick={() => navigate(`/athlete/${athleteId}`)}
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Athlete
+            </Button>
+            <div>
+              <h1 className="text-2xl font-bold">
+                Activities
+                {athlete && (
+                  <span className="text-lg font-normal text-gray-600 ml-2">
+                    - {athlete.firstName} {athlete.lastName}
+                  </span>
+                )}
+              </h1>
+              <p className="text-sm text-gray-500">
+                All activities synced from Garmin Connect
+              </p>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <Button
+              onClick={() => setUpsertWizardOpen(true)}
+              className="bg-blue-600 hover:bg-blue-700"
+              size="sm"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add to Model
+            </Button>
+            <Button
+              onClick={loadActivities}
+              disabled={loading}
+              variant="outline"
+              size="sm"
+            >
+              <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+              Refresh
+            </Button>
           </div>
         </div>
-        <Button
-          onClick={loadActivities}
-          disabled={loading}
-          variant="outline"
-          size="sm"
-        >
-          <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-          Refresh
-        </Button>
-      </div>
 
       {loading ? (
         <Card>
@@ -242,16 +297,27 @@ const AthleteActivities = () => {
                       </CardDescription>
                     </div>
                   </div>
-                  {activity.startTime && (
-                    <div className="text-right">
-                      <div className="text-sm font-medium text-gray-900">
-                        {formatDate(activity.startTime)}
+                  <div className="flex items-center gap-2">
+                    {activity.startTime && (
+                      <div className="text-right">
+                        <div className="text-sm font-medium text-gray-900">
+                          {formatDate(activity.startTime)}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {new Date(activity.startTime).toLocaleDateString('en-US', { weekday: 'short' })}
+                        </div>
                       </div>
-                      <div className="text-xs text-gray-500">
-                        {new Date(activity.startTime).toLocaleDateString('en-US', { weekday: 'short' })}
-                      </div>
-                    </div>
-                  )}
+                    )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleDeleteActivity(activity)}
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      title="Delete activity"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent>
@@ -334,6 +400,14 @@ const AthleteActivities = () => {
           ))}
         </div>
       )}
+
+      {/* Upsert Wizard Modal */}
+      <AdminUpsertWizard
+        isOpen={upsertWizardOpen}
+        onClose={() => setUpsertWizardOpen(false)}
+        athlete={athlete}
+      />
+      </div>
     </div>
   );
 };

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Activity, RefreshCw, User, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Activity, RefreshCw, User, AlertCircle, Clock, Ruler, Heart, Zap } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card.jsx';
 import { Button } from '../components/ui/button.jsx';
+import Navbar from '../components/Navbar';
 import toast, { Toaster } from 'react-hot-toast';
 
 const AllActivities = () => {
@@ -86,8 +87,10 @@ const AllActivities = () => {
   }, []);
 
   return (
-    <div className="container mx-auto p-6">
-      <Toaster position="top-right" />
+    <div className="min-h-screen bg-gray-50">
+      <Navbar />
+      <div className="container mx-auto p-6">
+        <Toaster position="top-right" />
       
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-4">
@@ -268,7 +271,9 @@ const AllActivities = () => {
         </div>
       )}
     </div>
+    </div>
   );
 };
 
 export default AllActivities;
+
