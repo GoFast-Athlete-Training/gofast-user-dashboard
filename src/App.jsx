@@ -4,6 +4,7 @@ import './index.css';
 import AdminHome from './pages/AdminHome';
 import DashboardNavOptions from './pages/DashboardNavOptions';
 import AdminAthletes from './pages/AdminAthletes';
+import AdminRunCrews from './pages/AdminRunCrews';
 import AthleteDetails from './pages/AthleteDetails';
 import AthleteActivities from './pages/AthleteActivities';
 import AllActivities from './pages/AllActivities';
@@ -15,6 +16,7 @@ function App() {
         <Route path="/" element={<AdminHome />} />
         <Route path="/admin" element={<DashboardNavOptions />} />
         <Route path="/athlete-admin" element={<AdminAthletes />} />
+        <Route path="/runcrews-admin" element={<AdminRunCrews />} />
         <Route path="/athlete/:athleteId" element={<AthleteDetails />} />
         <Route path="/athlete/:athleteId/activities" element={<AthleteActivities />} />
         <Route path="/all-activities" element={<AllActivities />} />
