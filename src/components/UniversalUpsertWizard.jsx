@@ -69,21 +69,52 @@ const UniversalUpsertWizard = ({ isOpen, onClose, athlete }) => {
   const availableModels = UPSERT_CONFIG.getAvailableModels();
 
   // Fetch options for select fields when model is selected
+  // Try localStorage first (hydrated data), then API fallback
   useEffect(() => {
     if (!selectedModel) return;
 
     const modelConfig = UPSERT_CONFIG.getModelConfig(selectedModel);
     if (!modelConfig || !modelConfig.additionalFields) return;
 
-    const fetchPromises = modelConfig.additionalFields
+    modelConfig.additionalFields
       .filter(field => field.type === 'select' && field.fetchOptions)
-      .map(async (field) => {
+      .forEach(async (field) => {
+        // Try localStorage first (hydrated data)
         try {
+          // For RunCrews, check localStorage
+          if (field.name === 'runCrewId') {
+            // Try multiple localStorage keys
+            const runCrewsFromStorage = 
+              JSON.parse(localStorage.getItem('runCrewsData') || 'null') ||
+              JSON.parse(localStorage.getItem('runCrews') || 'null') ||
+              (() => {
+                // Try to get from admin hydrate data
+                const adminData = localStorage.getItem('adminData');
+                if (adminData) {
+                  const parsed = JSON.parse(adminData);
+                  return parsed.runCrews || null;
+                }
+                return null;
+              })();
+
+            if (runCrewsFromStorage && Array.isArray(runCrewsFromStorage)) {
+              console.log('✅ Using RunCrews from localStorage:', runCrewsFromStorage.length);
+              setOptionsData(prev => ({
+                ...prev,
+                [field.name]: runCrewsFromStorage
+              }));
+              return; // Don't fetch from API if we have localStorage data
+            }
+          }
+
+          // Fallback: Fetch from API
+          console.log(`🔄 Fetching ${field.name} from API...`);
           const response = await fetch(`${API_BASE}${field.fetchOptions}`);
           if (response.ok) {
             const data = await response.json();
             // Handle different response formats
             const items = data.data || data.runCrews || data || [];
+            console.log(`✅ Fetched ${field.name} from API:`, items.length);
             setOptionsData(prev => ({
               ...prev,
               [field.name]: items
@@ -93,8 +124,6 @@ const UniversalUpsertWizard = ({ isOpen, onClose, athlete }) => {
           console.error(`Error fetching options for ${field.name}:`, err);
         }
       });
-
-    Promise.all(fetchPromises);
   }, [selectedModel]);
 
   const handleUpsert = async () => {
