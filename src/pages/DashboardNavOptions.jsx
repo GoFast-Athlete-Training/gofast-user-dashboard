@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import Navbar from '../components/Navbar';
-import { Users, Database, BarChart3, MessageSquare, Settings, Zap, Activity, UsersRound } from 'lucide-react';
+import { Users, Database, BarChart3, MessageSquare, Settings, Zap, Activity, Users2 } from 'lucide-react';
 
 const DashboardNavOptions = () => {
   const navigate = useNavigate();
@@ -17,45 +17,69 @@ const DashboardNavOptions = () => {
 
   // Load stats from localStorage
   useEffect(() => {
-    const athletesData = localStorage.getItem('athletesData');
-    const runCrewsData = localStorage.getItem('runCrewsData');
-    
-    if (athletesData) {
-      const athletes = JSON.parse(athletesData);
-      const sevenDaysAgo = new Date();
-      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    try {
+      const athletesData = localStorage.getItem('athletesData');
+      const runCrewsData = localStorage.getItem('runCrewsData');
       
-      const activeThisWeek = athletes.filter(a => {
-        const updated = a.updatedAt ? new Date(a.updatedAt) : new Date(a.createdAt);
-        return updated >= sevenDaysAgo;
-      }).length;
+      if (athletesData) {
+        try {
+          const athletes = JSON.parse(athletesData);
+          if (Array.isArray(athletes)) {
+            const sevenDaysAgo = new Date();
+            sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            
+            const activeThisWeek = athletes.filter(a => {
+              try {
+                const updated = a.updatedAt ? new Date(a.updatedAt) : new Date(a.createdAt);
+                return updated >= sevenDaysAgo;
+              } catch {
+                return false;
+              }
+            }).length;
+            
+            const newThisMonth = athletes.filter(a => {
+              try {
+                const created = new Date(a.createdAt);
+                return created >= thirtyDaysAgo;
+              } catch {
+                return false;
+              }
+            }).length;
+            
+            const completedProfiles = athletes.filter(a => 
+              a.firstName && a.lastName && a.city && a.primarySport
+            ).length;
+            
+            setStats(prev => ({
+              ...prev,
+              athletes: athletes.length,
+              activeThisWeek,
+              newThisMonth,
+              completedProfiles
+            }));
+          }
+        } catch (error) {
+          console.error('Error parsing athletes data:', error);
+        }
+      }
       
-      const newThisMonth = athletes.filter(a => {
-        const created = new Date(a.createdAt);
-        return created >= thirtyDaysAgo;
-      }).length;
-      
-      const completedProfiles = athletes.filter(a => 
-        a.firstName && a.lastName && a.city && a.primarySport
-      ).length;
-      
-      setStats(prev => ({
-        ...prev,
-        athletes: athletes.length,
-        activeThisWeek,
-        newThisMonth,
-        completedProfiles
-      }));
-    }
-    
-    if (runCrewsData) {
-      const runCrews = JSON.parse(runCrewsData);
-      setStats(prev => ({
-        ...prev,
-        runCrews: runCrews.length
-      }));
+      if (runCrewsData) {
+        try {
+          const runCrews = JSON.parse(runCrewsData);
+          if (Array.isArray(runCrews)) {
+            setStats(prev => ({
+              ...prev,
+              runCrews: runCrews.length
+            }));
+          }
+        } catch (error) {
+          console.error('Error parsing runCrews data:', error);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading stats:', error);
     }
   }, []);
 
@@ -71,7 +95,7 @@ const DashboardNavOptions = () => {
     {
       title: 'RunCrews Management',
       description: 'View and manage all RunCrews, members, and crew activities',
-      icon: <UsersRound className="h-8 w-8" />,
+      icon: <Users2 className="h-8 w-8" />,
       path: '/runcrews-admin',
       color: 'bg-purple-100 text-purple-600',
       priority: 'high'
