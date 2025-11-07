@@ -4,7 +4,7 @@ import { ArrowLeft, User, Mail, Calendar, MapPin, Activity, Shield, Key, Edit, S
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import Navbar from '../components/Navbar';
-import AdminUpsertWizard from '../components/AdminUpsertWizard';
+import UniversalUpsertWizard from '../components/UniversalUpsertWizard';
 import toast, { Toaster } from 'react-hot-toast';
 
 const AthleteDetails = () => {
@@ -589,8 +589,8 @@ const AthleteDetails = () => {
         </div>
       </div>
 
-      {/* Upsert Wizard Modal */}
-      <AdminUpsertWizard
+      {/* Universal Upsert Wizard Modal */}
+      <UniversalUpsertWizard
         isOpen={upsertWizardOpen}
         onClose={() => setUpsertWizardOpen(false)}
         athlete={athlete}

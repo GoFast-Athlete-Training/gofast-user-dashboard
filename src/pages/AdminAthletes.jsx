@@ -4,7 +4,7 @@ import { Users, RefreshCw, Trash2, Edit, Mail, Calendar, Shield, MessageSquare, 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import Navbar from '../components/Navbar';
-import AdminUpsertWizard from '../components/AdminUpsertWizard';
+import UniversalUpsertWizard from '../components/UniversalUpsertWizard';
 import toast, { Toaster } from 'react-hot-toast';
 
 const AdminAthletes = () => {
@@ -482,8 +482,8 @@ const AdminAthletes = () => {
         </CardContent>
       </Card>
 
-      {/* Upsert Wizard Modal */}
-      <AdminUpsertWizard
+      {/* Universal Upsert Wizard Modal */}
+      <UniversalUpsertWizard
         isOpen={upsertWizardOpen}
         onClose={() => {
           setUpsertWizardOpen(false);
